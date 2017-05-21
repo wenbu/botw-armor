@@ -26,6 +26,7 @@ def calc():
         components_already_have = dict()
 
     components_needed = dict()
+    components_completed = dict()
 
     for armor, armor_components_needed in components.items():
         tier_in_process = 1
@@ -46,12 +47,16 @@ def calc():
             num_have = components_already_have[component]
         if num_have >= num_needed:
             components_needed.pop(component)
+            components_completed[component] = "%d/%d" % (num_have, num_needed)
             continue
         components_needed[component] = "%d/%d" % (num_have, num_needed)
 
     with open('calc-armor-components', 'w') as f:
         pp = pprint.PrettyPrinter(indent=2)
         f.write(pp.pformat(components_needed))
+        if components_completed:
+            f.write('\n\n')
+            f.write(pp.pformat(components_completed))
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
