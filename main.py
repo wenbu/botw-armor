@@ -40,13 +40,14 @@ def calc():
                 components_needed[str(component)] = num_already_needed + num
             tier_in_process += 1
 
-    for component, num in components_already_have.items():
-        if component in components_needed:
-            num_needed = components_needed[component]
-            if num >= num_needed:
-                components_needed.pop(component)
-            else:
-                components_needed[component] -= num
+    for component, num_needed in components_needed.items():
+        num_have = 0
+        if component in components_already_have:
+            num_have = components_already_have[component]
+        if num_have >= num_needed:
+            components_needed.pop(component)
+            continue
+        components_needed[component] = "%d/%d" % (num_have, num_needed)
 
     with open('calc-armor-components', 'w') as f:
         pp = pprint.PrettyPrinter(indent=2)
