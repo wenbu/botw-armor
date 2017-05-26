@@ -15,7 +15,7 @@ class Scraper:
     # [ <armor_name>... ]
     def __init__(self, already_acquired_armor=dict(), excluded_armor=[]):
         self.PAGE_ROOT = 'http://zeldadungeon.net'
-        self.total_required_components = dict()
+        self.total_required_materials = dict()
         self._already_acquired_armor = already_acquired_armor
         self._excluded_armor = excluded_armor
 
@@ -34,9 +34,9 @@ class Scraper:
             armor_page_title = armor_page_dict['title']
             self.parseArmorPage(armor_page_url, armor_page_title)
 
-        with open('required-armor-components', 'w') as out:
+        with open('required-armor-materials', 'w') as out:
             pp = pprint.PrettyPrinter(indent=2)
-            out.write(pp.pformat(self.total_required_components))
+            out.write(pp.pformat(self.total_required_materials))
 
     def parseArmorPage(self, url, armor_name):
         # Skip this page if it's on the skip list.
@@ -70,7 +70,7 @@ class Scraper:
         '''
 
         '''
-        { <armor_name> : { <tier> : [(<component_num>, <component_name>)]}
+        { <armor_name> : { <tier> : [(<material_num>, <material_name>)]}
 
         ex:
         {
@@ -95,7 +95,7 @@ class Scraper:
             ...
         }
         '''
-        tier_component_dict = dict()
+        tier_material_dict = dict()
         try:
             for i, row_element in enumerate(row_elements):
                 # only bother with the tiers that we don't have
@@ -107,19 +107,19 @@ class Scraper:
                 cell_elements = row_element.getchildren()
                 upgrade_cell_element = cell_elements[2]
 
-                components = self.parseUpgradeCell(upgrade_cell_element)
+                materials = self.parseUpgradeCell(upgrade_cell_element)
 
-                tier_component_dict[tier] = components
+                tier_material_dict[tier] = materials
         except ValueError as e:
             print '[!] Unable to parse upgrade table on page %s' % title
             traceback.print_exc()
             return
 
-        if not tier_component_dict:
+        if not tier_material_dict:
             print '[?] No tiers were processed on page %s' % title
             return
 
-        self.total_required_components[armor_name] = tier_component_dict
+        self.total_required_materials[armor_name] = tier_material_dict
 
     # There may be multiple tables on the page. Figure out which one contains
     # the upgrade data. The table we are interested in has rows of length 3;
@@ -149,27 +149,28 @@ class Scraper:
 
     # return a list in the form:
     # [
-    #     (component_num, component_name),
-    #     (component_num, component_name),
+    #     (material_num, material_name),
+    #     (material_num, material_name),
     #     ...
     # ]
     def parseUpgradeCell(self, cell_element):
         upgrade_text = cell_element.text_content().strip()
         # upgrade_text is assumed to be in the form:
-        # [<num> <x> <component_name>]+
-        # with varying whitespace amounts, and where <x> can be either
-        # the literal 'x' or a fucking unicode cross character (why?????)
-        components_texts_raw = re.split('([0-9]+[^0-9]*)', upgrade_text)
-        components_texts = [c.strip()
-                            for c in components_texts_raw
+        # [<num> <x> <material_name>]+
+        # with varying whitespace amounts between components, and where
+        # <x> can be either the literal 'x' or a unicode cross
+        # character (why?????)
+        materials_texts_raw = re.split('([0-9]+[^0-9]*)', upgrade_text)
+        materials_texts = [c.strip()
+                            for c in materials_texts_raw
                             if c.strip()]
 
-        required_components = []
-        for component_text in components_texts:
-            s = re.split(u'x|\xc3\x97', component_text, 1)
-            component_num, component_name = [t.strip() for t in s]
+        required_materials = []
+        for material_text in materials_texts:
+            s = re.split(u'x|\xc3\x97', material_text, 1)
+            material_num, material_name = [t.strip() for t in s]
             # get rid of curly single quotes
-            component_name = component_name.replace(u'\xe2\x80\x98', "'") \
+            material_name = material_name.replace(u'\xe2\x80\x98', "'") \
                                            .replace(u'\xe2\x80\x99', "'")
-            required_components.append( (int(component_num), component_name) )
-        return required_components
+            required_materials.append( (int(material_num), material_name) )
+        return required_materials

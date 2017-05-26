@@ -1,0 +1,7 @@
+Code to generate a checklist for materials needed to upgrade all armor in Zelda: Breath of the Wild.
+Requires: lxml, requests if you want to run the scraper. (You shouldn't need to run the scraper).
+
+* Run "python main.py json" first to generate a blank materials file.
+* Fill in this file (materials-already-have.json) to reflect what you have in your inventory.
+* Update armor-already-have.json to reflect the tiers (i.e. number of stars) of your armor pieces.
+* Run "python main.py calc" to generate the checklist (calc-armor-materials)
