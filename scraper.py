@@ -111,12 +111,12 @@ class Scraper:
 
                 tier_material_dict[tier] = materials
         except ValueError as e:
-            print '[!] Unable to parse upgrade table on page %s' % title
+            print '[!] Unable to parse upgrade table on page %s' % armor_name
             traceback.print_exc()
             return
 
         if not tier_material_dict:
-            print '[?] No tiers were processed on page %s' % title
+            print '[?] No tiers were processed on page %s' % armor_name
             return
 
         self.total_required_materials[armor_name] = tier_material_dict
@@ -167,10 +167,10 @@ class Scraper:
 
         required_materials = []
         for material_text in materials_texts:
-            s = re.split(u'x|\xc3\x97', material_text, 1)
+            s = re.split(u'x|\u00d7', material_text, 1)
             material_num, material_name = [t.strip() for t in s]
             # get rid of curly single quotes
-            material_name = material_name.replace(u'\xe2\x80\x98', "'") \
-                                           .replace(u'\xe2\x80\x99', "'")
+            material_name = material_name.replace(u'\u2018', "'") \
+                                         .replace(u'\u2019', "'")
             required_materials.append( (int(material_num), material_name) )
         return required_materials
