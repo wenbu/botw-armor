@@ -70,7 +70,7 @@ def sum_materials_needed(armor_already_have=dict()):
     for armor, armor_materials_needed in required_armor_materials.items():
         tier_in_process = 1
         if armor in armor_already_have:
-            tier_in_process = armor_already_have[armor]
+            tier_in_process = armor_already_have[armor] + 1
         if tier_in_process < 1:
             tier_in_process = 1
 
